@@ -33,7 +33,7 @@ def newCategory():
         return render_template('newcategory.html')
 
 @app.route('/category/<string:category_name>/edit', methods=['GET','POST'])
-def editCategory():
+def editCategory(category_name):
     editCategory = session.query(Catalog).filter_by(name=category_name).one()
     if request.method == 'POST':
         editCategory.name = request.form['name']
