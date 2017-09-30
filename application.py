@@ -44,7 +44,7 @@ def editCategory(category_name):
         return render_template('editcategory.html',category = editCategory)
 
 @app.route('/category/<string:category_name>/delete', methods=['GET','POST'])
-def deleteCategory():
+def deleteCategory(category_name):
     deleteCategory = session.query(Catalog).filter_by(name=category_name).one()
     if request.method == 'POST':
         editCategory.name = request.form['name']
