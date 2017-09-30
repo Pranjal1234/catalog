@@ -23,7 +23,7 @@ class Item(Base):
 	name = Column(String(80), nullable = False)
 	id = Column(Integer, primary_key = True)
 	description = Column(String(280))
-	category_id = Column(Integer, ForeignKey('category.id'))
+	category_id = Column(Integer, ForeignKey('catalog.id'))
 	category = relationship(Catalog)
 
 engine = create_engine('sqlite:///catalog.db')
