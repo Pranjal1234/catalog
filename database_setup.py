@@ -10,11 +10,11 @@ Base = declarative_base()
 class User(Base):
 	__tablename__='user'
 	id = Column(Integer, primary_key=True)
-	name = Column(String(250), nullable=False)
+	name = Column(String(250), nullable=False, unique=True)
 	email = Column(String(250), nullable=False)
 
-class Category(Base):
-	__tablename__='category'
+class Catalog(Base):
+	__tablename__='catalog'
 	name = Column(String(80), nullable = False)
 	id = Column(Integer, primary_key = True)
 
@@ -22,7 +22,6 @@ class Item(Base):
 	__tablename__='item'
 	name = Column(String(80), nullable = False)
 	id = Column(Integer, primary_key = True)
-	course = Column(String(250))
 	description = Column(String(280))
 	category_id = Column(Integer, ForeignKey('category.id'))
 	category = relationship(Category)
