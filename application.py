@@ -99,6 +99,12 @@ def deleteItem(category_name,item):
     else:
         return render_template('deleteitem.html',category=category.name,item=editItem.name)
 
+@app.route('/category/<string:category_name>/<string:item>/')
+def showItem(category_name,item):
+    category = session.query(Catalog).filter_by(name=category_name).one()
+    items = session.query(Item).filter_by(category_id=category.id,name=item).one()
+    return render_template('publicitem.html', category=category,items=items)
+
 if __name__ == '__main__':
     app.debug = True
     app.run(host = '0.0.0.0', port = 8000)
