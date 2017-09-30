@@ -54,8 +54,8 @@ def deleteCategory(category_name):
     else:
         return render_template('deletecategory.html',category = editCategory)
 
-@app.route('/category/<string:category_name>')
-def showCategory():
+@app.route('/category/<string:category_name>/')
+def showCategory(category_name):
     category = session.query(Catalog).filter_by(name=category_name).one()
     items = session.query(Item).filter_by(category_id=category.id).all()
     return render_template('publiccategory.html', category=category,items=items)
