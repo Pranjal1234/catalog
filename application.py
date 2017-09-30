@@ -30,7 +30,7 @@ def newCatagory():
 		session.commit()
 		return redirect(url_for('showCatalog'))
 	else:
-		return render_template('publicnewcategory.html')
+		return render_template('newcategory.html')
 
 @app.route('/catagory/<str:category_name>/edit', methods=['GET','POST'])
 def editCatagory():
@@ -102,4 +102,3 @@ def deleteItem():
 if __name__ == '__main__':
 	app.debug = True
 	app.run(host = '0.0.0.0', port = 8000)
-	
