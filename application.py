@@ -32,7 +32,7 @@ def newCategory():
     else:
         return render_template('newcategory.html')
 
-@app.route('/category/<str:category_name>/edit', methods=['GET','POST'])
+@app.route('/category/<string:category_name>/edit', methods=['GET','POST'])
 def editCategory():
     editCategory = session.query(Catalog).filter_by(name=category_name).one()
     if request.method == 'POST':
@@ -43,7 +43,7 @@ def editCategory():
     else:
         return render_template('editcategory.html',category = editCategory)
 
-@app.route('/category/<str:category_name>/delete', methods=['GET','POST'])
+@app.route('/category/<string:category_name>/delete', methods=['GET','POST'])
 def deleteCategory():
     deleteCategory = session.query(Catalog).filter_by(name=category_name).one()
     if request.method == 'POST':
@@ -54,13 +54,13 @@ def deleteCategory():
     else:
         return render_template('deletecategory.html',category = editCategory)
 
-@app.route('/category/<str:category_name>')
+@app.route('/category/<string:category_name>')
 def showCategory():
     category = session.query(Catalog).filter_by(name=category_name).one()
     items = session.query(Item).filter_by(category_id=category.id).all()
     return render_template('publiccategory.html', category=category,items=items)
 
-@app.route('/category/<str:category_name>/new', methods=['GET','POST'])
+@app.route('/category/<string:category_name>/new', methods=['GET','POST'])
 def newItem():
     if request.method == 'POST':
         category = session.query(Catalog).filter_by(name=category).one()
@@ -73,7 +73,7 @@ def newItem():
     else:
         return render_template('newcategory.html')
 
-@app.route('/category/<str:category_name>/<str:item>/edit', methods=['GET','POST'])
+@app.route('/category/<string:category_name>/<string:item>/edit', methods=['GET','POST'])
 def editItem():
     category = session.query(Catalog).filter_by(name=category).one()
     editItem = session.query(Item).filter_by(name=item,category_id=category.id).one()
@@ -88,7 +88,7 @@ def editItem():
     else:
         return render_template('edititem.html',category=category.name,item=editItem.name)
 
-@app.route('/category/<str:category_name>/<str:item>/delete', methods=['GET','POST'])
+@app.route('/category/<string:category_name>/<string:item>/delete', methods=['GET','POST'])
 def deleteItem():
     category = session.query(Catalog).filter_by(name=category).one()
     editItem = session.query(Item).filter_by(name=item,category_id=category.id).one()
