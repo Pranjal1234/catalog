@@ -61,7 +61,7 @@ def showCategory(category_name):
     return render_template('publiccategory.html', category=category,items=items)
 
 @app.route('/category/<string:category_name>/new', methods=['GET','POST'])
-def newItem():
+def newItem(category_name):
     if request.method == 'POST':
         category = session.query(Catalog).filter_by(name=category).one()
         newCategory = Catalog(name=request.form['name'],
