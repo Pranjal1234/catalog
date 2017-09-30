@@ -74,8 +74,8 @@ def newItem(category_name):
         return render_template('newcategory.html')
 
 @app.route('/category/<string:category_name>/<string:item>/edit', methods=['GET','POST'])
-def editItem():
-    category = session.query(Catalog).filter_by(name=category).one()
+def editItem(category_name,item):
+    category = session.query(Catalog).filter_by(name=category_name).one()
     editItem = session.query(Item).filter_by(name=item,category_id=category.id).one()
     if request.method == 'POST':
         if request.form['name']:
