@@ -71,7 +71,7 @@ def newItem():
 		session.commit()
 		return redirect(url_for('showCatalog'))
 	else:
-		return render_template('publicnewcatagory.html')
+		return render_template('newcatagory.html')
 
 @app.route('/catagory/<str:catagory_name>/<str:item>/edit', methods=['GET','POST'])
 def editItem():
@@ -86,7 +86,7 @@ def editItem():
         session.commit()
         return redirect(url_for('showCategory',category_name=category.name))
     else:
-    	return render_template('editmenuitem.html',category=category.name,item=editItem.name)
+    	return render_template('edititem.html',category=category.name,item=editItem.name)
 
 @app.route('/catagory/<str:catagory_name>/<str:item>/delete', methods=['GET','POST'])
 def deleteItem():
