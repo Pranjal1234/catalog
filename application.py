@@ -19,7 +19,7 @@ session = DBSession()
 @app.route('/catalog')
 def showCatalog():
     categories = session.query(Catalog).all()
-    latestitems = session.query(Item).order_by(item.id)
+    latestitems = session.query(Item).order_by('id')
     return render_template('publiccatalog.html')
 
 @app.route('/catalog/new', methods=['GET','POST'])
