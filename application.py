@@ -22,7 +22,7 @@ def showCatalog():
     latestitems = session.query(Item).order_by('id')
     return render_template('publiccatalog.html')
 
-@app.route('/catalog/new', methods=['GET','POST'])
+@app.route('/catalog/new/', methods=['GET','POST'])
 def newCategory():
     if request.method == 'POST':
         newCategory = Catalog(name=request.form['name'])
@@ -32,7 +32,7 @@ def newCategory():
     else:
         return render_template('newcategory.html')
 
-@app.route('/category/<string:category_name>/edit', methods=['GET','POST'])
+@app.route('/category/<string:category_name>/edit/', methods=['GET','POST'])
 def editCategory(category_name):
     editCategory = session.query(Catalog).filter_by(name=category_name).one()
     if request.method == 'POST':
@@ -43,7 +43,7 @@ def editCategory(category_name):
     else:
         return render_template('editcategory.html',category = editCategory)
 
-@app.route('/category/<string:category_name>/delete', methods=['GET','POST'])
+@app.route('/category/<string:category_name>/delete/', methods=['GET','POST'])
 def deleteCategory(category_name):
     deleteCategory = session.query(Catalog).filter_by(name=category_name).one()
     if request.method == 'POST':
@@ -73,7 +73,7 @@ def newItem(category_name):
     else:
         return render_template('newcategory.html')
 
-@app.route('/category/<string:category_name>/<string:item>/edit', methods=['GET','POST'])
+@app.route('/category/<string:category_name>/<string:item>/edit/', methods=['GET','POST'])
 def editItem(category_name,item):
     category = session.query(Catalog).filter_by(name=category_name).one()
     editItem = session.query(Item).filter_by(name=item, category_id=category.id).one()
@@ -88,7 +88,7 @@ def editItem(category_name,item):
     else:
         return render_template('edititem.html',category=category.name,item=editItem.name)
 
-@app.route('/category/<string:category_name>/<string:item>/delete', methods=['GET','POST'])
+@app.route('/category/<string:category_name>/<string:item>/delete/', methods=['GET','POST'])
 def deleteItem(category_name,item):
     category = session.query(Catalog).filter_by(name=category_name).one()
     editItem = session.query(Item).filter_by(name=item,category_id=category.id).one()
