@@ -1,7 +1,44 @@
 <html>
-<head>
-</head>
-<body>
-	This page is for the catalog!
-</body>
+	<head>
+		<meta charset="utf-8">
+	    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<!-- <link rel=stylesheet type=text/css href="{{ url_for('static', filename='mystyles.css') }}"> -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+		<script src="https://use.fontawesome.com/cdc49cdcaa.js"></script>
+	</head>
+	<body>
+		<header>
+			<div class='row header'>
+				<div class='col-sm-12'>
+					Catalog
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-sm-12">
+					<a href="#">Click Here to Login </a>
+				</div>
+			</div>
+		</header>
+		<main class="container-fluid">
+			<div class="row">
+				<div class="col-sm-3">
+					<title>Categories</title>
+					{% for category in categories %}
+
+					<a href="{{url_for('showCategory',category_name=category.name)}}">{{category.name}}</a>
+					{% endfor %}				
+				</div>
+				<div class="col-sm-9">
+					<title>Latest Items</title>
+					{% for category in categories %}
+					{% for item in latestitems %}
+					{% if category.id == item.category_id %}
+					<a href="{{url_for('showItem',category_name=category.name,item=item.name)}}">{{item.name}}</a>
+					{% endif %}
+					{% endfor %}
+					{% endfor %}
+				</div>	
+			</div>
+		</main>
+	</body>
 </html>
