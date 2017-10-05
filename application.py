@@ -16,7 +16,7 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 @app.route('/')
-@app.route('/catalog')
+@app.route('/catalog/')
 def showCatalog():
     categories = session.query(Catalog).all()
     latestitems = session.query(Item).order_by('id')
@@ -56,9 +56,11 @@ def deleteCategory(category_name):
 
 @app.route('/category/<string:category_name>/')
 def showCategory(category_name):
+    categories = session.query(Catalog).all()
     category = session.query(Catalog).filter_by(name=category_name).one()
     items = session.query(Item).filter_by(category_id=category.id).all()
-    return render_template('publiccategory.html', category=category,items=items)
+    cnt = session.query(Item).filter_by(category_id=category.id).count()
+    return render_template('publiccategory.html', categories=categories, category=category,items=items,cnt=cnt)
 
 @app.route('/category/<string:category_name>/new', methods=['GET','POST'])
 def newItem(category_name):
