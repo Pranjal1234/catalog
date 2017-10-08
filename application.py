@@ -1,8 +1,13 @@
 import os
-from flask import Flask, render_template,url_for,request,redirect,jsonify
+from flask import Flask, render_template,url_for,request,redirect,jsonify,g
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, User, Catalog, Item
+from flask_httpauth import HTTPBasicAuth
+from flask import session as login_session
+
+# Flask tool for auth.
+auth = HTTPBasicAuth()
 
 # Flask started up
 app = Flask(__name__)
@@ -15,44 +20,86 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
+#ADD @auth.verify_password decorator here
+@auth.verify_password
+def verify_password(email_or_token, password):
+    user_id = User.verify_auth_token(email_or_token)
+    if user_id:
+        user = session.query(User).filter_by(id = user_id).one()
+    else:
+        user = session.query(User).filter_by(email = email_or_token).first()
+        if not user or not user.verify_password(password):
+            return False
+    login_session['email'] = user.email
+    login_session['id'] = user.id
+    login_session['name'] = user.name
+    return True
+
+@app.route('/token')
+@auth.login_required
+def get_auth_token():
+    token = g.user.generate_auth_token()
+    return jsonify({'token': token.decode('ascii')})
+
+@app.route('/newuser', methods = ['POST','GET'])
+def new_user():
+    if request.method == 'POST':
+        email = request.form['email']
+        name = request.form['name']
+        password = request.form['password']
+        if email is None or password is None or name is None:
+            print "missing arguments"
+            abort(400) 
+            
+        if session.query(User).filter_by(email = email).first() is not None:
+            print "existing user"
+            user = session.query(User).filter_by(email=email).first()
+            return jsonify({'message':'user already exists'}), 200#, {'Location': url_for('get_user', id = user.id, _external = True)}
+            
+        user = User(email = email, name=name)
+        user.hash_password(password)
+        session.add(user)
+        session.commit()
+        return redirect(url_for('loginPage'))#, {'Location': url_for('get_user', id = user.id, _external = True)}
+    else:
+        return render_template('newuser.html')
+
+@app.route('/login/', methods = ['POST','GET'])
+def loginPage():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        if email is None or password is None:
+            print "missing arguments"
+            abort(400)
+        if(verify_password(email,password)):
+            return redirect(url_for('showCatalog'))
+        else:
+            return jsonify({'message': 'Incorrect'}), 200
+    else:
+        return render_template('login.html')
+
 @app.route('/')
 @app.route('/catalog/')
 def showCatalog():
     categories = session.query(Catalog).all()
     latestitems = session.query(Item).order_by('id')
-    return render_template('publiccatalog.html',categories=categories,latestitems=latestitems)
+    if 'email' not in login_session:
+        return render_template('publiccatalog.html',categories=categories,latestitems=latestitems,session=login_session)
+    else:
+        return render_template('catalog.html',categories=categories,latestitems=latestitems,session=login_session)
 
-@app.route('/catalog/new/', methods=['GET','POST'])
-def newCategory():
-    if request.method == 'POST':
-        newCategory = Catalog(name=request.form['name'])
-        session.add(newCategory)
-        session.commit()
+def disconnect():
+    if 'email' in login_session:
+        del login_session['email']
+        del login_session['id']
+        del login_session['name']
+        print "You have successfully been logged out."
         return redirect(url_for('showCatalog'))
     else:
-        return render_template('newcategory.html')
-
-@app.route('/category/<string:category_name>/edit/', methods=['GET','POST'])
-def editCategory(category_name):
-    editCategory = session.query(Catalog).filter_by(name=category_name).one()
-    if request.method == 'POST':
-        editCategory.name = request.form['name']
-        session.add(editCategory)
-        session.commit()
+        print "You were not logged in to a profile"
         return redirect(url_for('showCatalog'))
-    else:
-        return render_template('editcategory.html',category = editCategory)
 
-@app.route('/category/<string:category_name>/delete/', methods=['GET','POST'])
-def deleteCategory(category_name):
-    deleteCategory = session.query(Catalog).filter_by(name=category_name).one()
-    if request.method == 'POST':
-        editCategory.name = request.form['name']
-        session.delete(editCategory)
-        session.commit()
-        return redirect(url_for('showCatalog'))
-    else:
-        return render_template('deletecategory.html',category = editCategory)
 
 @app.route('/category/<string:category_name>/')
 def showCategory(category_name):
@@ -60,20 +107,40 @@ def showCategory(category_name):
     category = session.query(Catalog).filter_by(name=category_name).one()
     items = session.query(Item).filter_by(category_id=category.id).all()
     cnt = session.query(Item).filter_by(category_id=category.id).count()
-    return render_template('publiccategory.html', categories=categories, category=category,items=items,cnt=cnt)
+    if 'email' not in login_session:
+        return render_template('publiccategory.html', categories=categories, category=category,items=items,cnt=cnt)
+    else:
+        return render_template('category.html', categories=categories, category=category,items=items,cnt=cnt,session=login_session)
 
-@app.route('/category/<string:category_name>/new', methods=['GET','POST'])
-def newItem(category_name):
+    
+@app.route('/category/newitem', methods=['GET','POST'])
+def newItem():
+    if 'email' not in login_session:
+        return redirect('/login/')
     if request.method == 'POST':
-        category = session.query(Catalog).filter_by(name=category).one()
-        newCategory = Catalog(name=request.form['name'],
+        category = session.query(Catalog).filter_by(name=request.form['category']).one()
+        if category:
+            newItem = Item(name=request.form['name'],
                 description=request.form['description'],
-                category_id=category.id)
-        session.add(newCategory)
-        session.commit()
+                category_id=category.id,
+                user_id=login_session['id'])
+            session.add(newItem)
+            session.commit()
+        else:
+            newCategory = Catalog(name=request.form['category'],
+                user_id=login_session['id'])
+            session.add(newCategory)
+            session.commit()
+            category = session.query(Catalog).filter_by(name=request.form['category']).one()
+            newItem = Item(name=request.form['name'],
+                description=request.form['description'],
+                category_id=category.id,
+                user_id=login_session['id'])
+            session.add(newItem)
+            session.commit() 
         return redirect(url_for('showCatalog'))
     else:
-        return render_template('newcategory.html')
+        return render_template('newitem.html')
 
 @app.route('/category/<string:category_name>/<string:item>/edit/', methods=['GET','POST'])
 def editItem(category_name,item):

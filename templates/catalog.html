@@ -31,11 +31,14 @@
 					{% endfor %}				
 				</div>
 				<div class="col-sm-9">
-					<p>{{category.name}} Items ({{cnt}} items)</p>
-					{% for item in items %}
+					<a href="{{url_for('newItem')}}"></a>
+					<p>Latest Items</p>
+					{% for category in categories %}
+					{% for item in latestitems %}
 					{% if category.id == item.category_id %}
-					<a href="{{url_for('showItem',category_name=category.name,item=item.name)}}">{{item.name}}</a>
+					<a href="{{url_for('showItem',category_name=category.name,item=item.name)}}">{{item.name}}</a> ({{category.name}})
 					{% endif %}
+					{% endfor %}
 					{% endfor %}
 				</div>	
 			</div>

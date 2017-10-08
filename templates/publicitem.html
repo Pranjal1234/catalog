@@ -13,7 +13,11 @@
 					<h1>Catalog App</h1>
 				</div>
 				<div class="col-sm-3 login_btn">
-					<a href="#">Login</a>
+					{%if 'email' not in session %}
+					<a href="{{url_for('loginPage')}}">Login </a>
+					{% else %}
+					<a href="{{url_for('disconnect')}}">Logout</a>
+					{% endif %}
 				</div>
 			</div>
 		</header>

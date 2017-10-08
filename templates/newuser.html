@@ -1,0 +1,36 @@
+<html>
+	<head>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+	</head>
+	<body>
+		<form action="{{url_for('new_user')}}"" method="POST">
+			<div class="login">
+				<div class="login-screen">
+					<div class="app-title">
+						<h1>Register</h1>
+					</div>
+		 
+					<div class="login-form">
+						<div class="control-group">
+						<input type="text" class="login-field" value="" placeholder="email" name="email">
+						<label class="login-field-icon fui-user" for="login-email"></label>
+						</div>
+
+						<div class="control-group">
+						<input type="text" class="login-field" value="" placeholder="name" name="name">
+						<label class="login-field-icon fui-lock" for="login-name"></label>
+						</div>
+		 
+						<div class="control-group">
+						<input type="password" class="login-field" value="" placeholder="password" name="password">
+						<label class="login-field-icon fui-lock" for="login-pass"></label>
+						</div>
+		 
+		                <input type="submit" value="Register" class="btn btn-primary btn-large btn-block" >
+					    <br>
+					</div>
+				</div>
+			</div>
+		</form>
+	</body>
+</html>

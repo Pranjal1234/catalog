@@ -31,6 +31,7 @@
 					{% endfor %}				
 				</div>
 				<div class="col-sm-9">
+					<a href="{{url_for(newItem)}}"></a>
 					<p>{{category.name}} Items ({{cnt}} items)</p>
 					{% for item in items %}
 					{% if category.id == item.category_id %}
