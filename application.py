@@ -89,6 +89,7 @@ def showCatalog():
     else:
         return render_template('catalog.html',categories=categories,latestitems=latestitems,session=login_session)
 
+@app.route('/logout/')
 def disconnect():
     if 'email' in login_session:
         del login_session['email']
@@ -145,17 +146,21 @@ def newItem():
 @app.route('/category/<string:category_name>/<string:item>/edit/', methods=['GET','POST'])
 def editItem(category_name,item):
     category = session.query(Catalog).filter_by(name=category_name).one()
-    editItem = session.query(Item).filter_by(name=item, category_id=category.id).one()
+    editItem = session.query(Item).filter_by(name=item,category_id=category.id).one()
     if request.method == 'POST':
         if request.form['name']:
             editItem.name = request.form['name']
         if request.form['description']:
             editItem.description = request.form['description']
+        if request.form['category']:
+            category = session.query(Catalog).filter_by(name=request.form['category']).one()
+            editItem.category_id = category.id
+        editItem.user_id = login_session['id']
         session.add(editItem)
         session.commit()
         return redirect(url_for('showCategory',category_name=category.name))
     else:
-        return render_template('edititem.html',category=category.name,item=editItem.name)
+        return render_template('edititem.html',category=category,item=editItem)
 
 @app.route('/category/<string:category_name>/<string:item>/delete/', methods=['GET','POST'])
 def deleteItem(category_name,item):
@@ -166,14 +171,20 @@ def deleteItem(category_name,item):
         session.commit()
         return redirect(url_for('showCategory',category_name=category.name))
     else:
-        return render_template('deleteitem.html',category=category.name,item=editItem.name)
+        return render_template('deleteitem.html',category=category,item=editItem)
 
 @app.route('/category/<string:category_name>/<string:item>/')
 def showItem(category_name,item):
     category = session.query(Catalog).filter_by(name=category_name).one()
     item = session.query(Item).filter_by(category_id=category.id,name=item).one()
-    return render_template('publicitem.html', category=category,item=item)
+    if 'email' in login_session and login_session['id'] == item.user_id:
+        return render_template('item.html', category=category,item=item,session=login_session)
+    else:
+        return render_template('publicitem.html', category=category,item=item,session=login_session)
+
+    
 
 if __name__ == '__main__':
     app.debug = True
+    app.secret_key = 'super_secret_key'
     app.run(host = '0.0.0.0', port = 8000)

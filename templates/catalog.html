@@ -10,7 +10,7 @@
 		<header>
 			<div class='row header'>
 				<div class='col-sm-9 app_name'>
-					<h1>Catalog App</h1>
+					<a href="{{url_for('showCatalog')}}"><h1>Catalog App</h1></a>
 				</div>
 				<div class="col-sm-3 login_btn">
 					{%if 'email' not in session %}
@@ -31,7 +31,7 @@
 					{% endfor %}				
 				</div>
 				<div class="col-sm-9">
-					<a href="{{url_for('newItem')}}"></a>
+					<a href="{{url_for('newItem')}}">Add Items</a>
 					<p>Latest Items</p>
 					{% for category in categories %}
 					{% for item in latestitems %}

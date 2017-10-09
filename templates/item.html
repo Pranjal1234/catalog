@@ -10,7 +10,7 @@
 		<header>
 			<div class='row header'>
 				<div class='col-sm-9 app_name'>
-					<h1>Catalog App</h1>
+					<a href="{{url_for('showCatalog')}}"><h1>Catalog App</h1></a>
 				</div>
 				<div class="col-sm-3 login_btn">
 					{%if 'email' not in session %}
@@ -26,8 +26,8 @@
 				<div class="col-sm-12">
 					<h3>{{item.name}}</h3>
 					<p> Description: {{item.description}}</p>
-					<a href="{{url_for(editItem)}}">Edit</a> |
-					<a href="{{url_for(deleteItem)}}"></a>
+					<a href="{{url_for('editItem',category_name=category.name,item=item.name)}}">Edit</a> |
+					<a href="{{url_for('deleteItem',category_name=category.name,item=item.name)}}">Delete</a>
 				</div>	
 			</div>
 		</main>
