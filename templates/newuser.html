@@ -1,7 +1,18 @@
 <html>
 	<head>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+		<link rel=stylesheet type=text/css href="{{ url_for('static', filename='mystyles.css') }}">
 	</head>
+	{% with messages = get_flashed_messages() %}
+			{% if messages %}
+				<ul>
+				{% for message in messages %}
+					<li><strong>{{message}}</strong></li>
+				{% endfor %}
+				</ul>
+			{% endif %}
+		{% endwith %}
+
 	<body>
 		<form action="{{url_for('new_user')}}"" method="POST">
 			<div class="login">
@@ -10,27 +21,54 @@
 						<h1>Register</h1>
 					</div>
 		 
-					<div class="login-form">
+					<div class="register-form">
 						<div class="control-group">
-						<input type="text" class="login-field" value="" placeholder="email" name="email">
+						Email:
+						<input type="text" class="login-field" value="" placeholder="catalog@example.com" name="email" size="30">
 						<label class="login-field-icon fui-user" for="login-email"></label>
 						</div>
 
 						<div class="control-group">
-						<input type="text" class="login-field" value="" placeholder="name" name="name">
+						Name:
+						<input type="text" class="login-field" value="" placeholder="Full Name" name="name">
 						<label class="login-field-icon fui-lock" for="login-name"></label>
 						</div>
 		 
 						<div class="control-group">
-						<input type="password" class="login-field" value="" placeholder="password" name="password">
+						Password:
+						<input type="password" id="password" class="login-field" value="" placeholder="password" name="password">
+						<label class="login-field-icon fui-lock" for="login-pass"></label>
+						</div>
+
+						<div class="control-group">
+						Confirm Password:
+						<input type="password" id="confirm_password" class="login-field" value="" placeholder="password" name="password">
 						<label class="login-field-icon fui-lock" for="login-pass"></label>
 						</div>
 		 
 		                <input type="submit" value="Register" class="btn btn-primary btn-large btn-block" >
 					    <br>
+					    <a class="register btn-block center" href="{{url_for('loginPage')}}">Cancel</a>
 					</div>
 				</div>
 			</div>
 		</form>
+		
 	</body>
+	<script>
+		var password = document.getElementById("password")
+	  	, confirm_password = document.getElementById("confirm_password");
+
+	  	function validatePassword(){
+		  if(password.value != confirm_password.value) {
+		    confirm_password.setCustomValidity("Passwords Don't Match");
+		  } else {
+		    confirm_password.setCustomValidity('');
+		  }
+		}
+
+		password.onchange = validatePassword;
+		confirm_password.onkeyup = validatePassword;
+
+	</script>
 </html>

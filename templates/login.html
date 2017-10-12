@@ -1,29 +1,39 @@
 <html>
 	<head>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+		<link rel=stylesheet type=text/css href="{{ url_for('static', filename='mystyles.css') }}">
 	</head>
+	{% with messages = get_flashed_messages() %}
+			{% if messages %}
+				<ul>
+				{% for message in messages %}
+					<li><strong>{{message}}</strong></li>
+				{% endfor %}
+				</ul>
+			{% endif %}
+		{% endwith %}
 	<body>
 		<form action="{{url_for('loginPage')}}" method="POST">
 			<div class="login">
 				<div class="login-screen">
 					<div class="app-title">
-						<h1>Login</h1>
+						<h1>Catalog App Login</h1>
 					</div>
 		 
 					<div class="login-form">
-						<div class="control-group">
-						<input type="text" class="login-field" value="" placeholder="email" name="email">
-						<label class="login-field-icon fui-user" for="login-name"></label>
-						</div>
+						
+						Email:<input type="text" class="login-field" value="" placeholder="catalog@example.com" name="email" size="30"><br>
+						
+						Password:
+						<input type="password" class="login-field" value="" placeholder="password" name="password"><br>
+						
 		 
-						<div class="control-group">
-						<input type="password" class="login-field" value="" placeholder="password" name="password">
-						<label class="login-field-icon fui-lock" for="login-pass"></label>
-						</div>
-		 
-		                <input type="submit" value="Log in" class="btn btn-primary btn-large btn-block" >
+		                <input type="submit" value="Log in" class="login-btn btn btn-primary" >
 
-		                New? <a href="{{url_for('new_user')}}">Register</a>
+
+		                <div class="register">New? <a href="{{url_for('new_user')}}">Register</a>
+		                </div>
+		                
 					    <br>
 					</div>
 				</div>

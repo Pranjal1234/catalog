@@ -2,40 +2,49 @@
 	<head>
 		<meta charset="utf-8">
 	    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<!-- <link rel=stylesheet type=text/css href="{{ url_for('static', filename='mystyles.css') }}"> -->
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
 		<script src="https://use.fontawesome.com/cdc49cdcaa.js"></script>
+		<link rel=stylesheet type=text/css href="{{ url_for('static', filename='mystyles.css') }}">
 	</head>
 	<body>
 		<header>
-			<div class='row header'>
-				<div class='col-sm-9 app_name'>
-					<h1>Catalog App</h1>
+			<div class='row'>
+				<div class='col-sm-9 app-name'>
+					<a class="app-name" href="{{url_for('showCatalog')}}">Catalog App</a>
 				</div>
-				<div class="col-sm-3 login_btn">
+				<div class="col-sm-3 login-btn">
 					{%if 'email' not in session %}
-					<a href="{{url_for('loginPage')}}">Login </a>
+					<a class="login-btn" href="{{url_for('loginPage')}}">Login </a>
 					{% else %}
-					<a href="{{url_for('disconnect')}}">Logout</a>
+					<a class="login-btn" href="{{url_for('disconnect')}}">Logout</a>
 					{% endif %}
 				</div>
 			</div>
 		</header>
+		{% with messages = get_flashed_messages() %}
+			{% if messages %}
+				<ul>
+				{% for message in messages %}
+					<li><strong>{{message}}</strong></li>
+				{% endfor %}
+				</ul>
+			{% endif %}
+		{% endwith %}
 		<main class="container-fluid">
 			<div class="row">
 				<div class="col-sm-3">
-					<p>Categories</p>
+					<p class="group">Categories</p>
 					{% for category in categories %}
 
-					<a href="{{url_for('showCategory',category_name=category.name)}}">{{category.name}}</a>
+					<a href="{{url_for('showCategory',category_name=category.name)}}">{{category.name}}</a> <br>
 					{% endfor %}				
 				</div>
 				<div class="col-sm-9">
-					<p>Latest Items</p>
+					<p class="group">Latest Items</p>
 					{% for category in categories %}
 					{% for item in latestitems %}
 					{% if category.id == item.category_id %}
-					<a href="{{url_for('showItem',category_name=category.name,item=item.name)}}">{{item.name}}</a> ({{category.name}})
+					<a href="{{url_for('showItem',category_name=category.name,item=item.name)}}">{{item.name}}</a> <i>({{category.name}})</i> <br>
 					{% endif %}
 					{% endfor %}
 					{% endfor %}

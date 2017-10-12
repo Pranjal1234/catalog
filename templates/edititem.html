@@ -2,36 +2,46 @@
 	<head>
 		<meta charset="utf-8">
 	    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<!-- <link rel=stylesheet type=text/css href="{{ url_for('static', filename='mystyles.css') }}"> -->
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
 		<script src="https://use.fontawesome.com/cdc49cdcaa.js"></script>
+		<link rel=stylesheet type=text/css href="{{ url_for('static', filename='mystyles.css') }}">
 	</head>
 	<body>
 		<header>
-			<div class='row header'>
-				<div class='col-sm-9 app_name'>
-					<h1>Catalog App</h1>
+			<div class='row'>
+				<div class='col-sm-9 app-name'>
+					<a class="app-name" href="{{url_for('showCatalog')}}">Catalog App</a>
+					Edit {{item.name}}
 				</div>
-				<div class="col-sm-3 login_btn">
+				<div class="col-sm-3 login-btn">
 					{%if 'email' not in session %}
-					<a href="{{url_for('loginPage')}}">Login </a>
+					<a class="login-btn" href="{{url_for('loginPage')}}">Login</a>
 					{% else %}
-					<a href="{{url_for('disconnect')}}">Logout</a>
+					<a class="login-btn" href="{{url_for('disconnect')}}">Logout</a>
 					{% endif %}
 				</div>
 			</div>
 		</header>
-		<main>
-			<form class="pane" action="{{url_for('editItem',category_name=category.name,item=item.name)}}" method="POST">
-				<strong>Name:</strong>
-				<input type="text" name="name"><br><br>
+		{% with messages = get_flashed_messages() %}
+			{% if messages %}
+				<ul>
+				{% for message in messages %}
+					<li><strong>{{message}}</strong></li>
+				{% endfor %}
+				</ul>
+			{% endif %}
+		{% endwith %}
+		<main class="new-screen">
+			<form class="pane" id="editform" action="{{url_for('editItem',category_name=category.name,item=item.name)}}" method="POST">
+				<strong>Name:</strong><br>
+				<input type="text" name="name" placeholder="{{item.name}}"><br><br>
 				<strong>Description:</strong>
-				<input type="text" name="name"><br><br>
+				<textarea name="description" form="editform" rows="4" cols="50" placeholder="Desciption.."></textarea>
 				<strong>Category:</strong>
-				<input type="text" name="name"><br><br>
-				<input type="submit" value="Edit" name="">
+				<input type="text" name="category" placeholder="{{category.name}}"><br><br>
+				<input type="submit" value="Edit">
+				<a href="{{url_for('showItem',category_name=category.name,item=item.name)}}"> Cancel</a>
 			</form>
-			<a href="{{url_for('showItem',category_name=category.name,item=item.name)}}"> Cancel</a>
 		</main>
 	</body>
 </html>

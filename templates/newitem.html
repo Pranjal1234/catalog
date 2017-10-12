@@ -8,15 +8,16 @@
 	</head>
 	<body>
 		<header>
-			<div class='row header'>
-				<div class='col-sm-9 app_name'>
-					<a href="{{url_for('showCatalog')}}"><h1>Catalog App</h1></a>
+			<div class='row'>
+				<div class='col-sm-9 app-name'>
+					<a class="app-name" href="{{url_for('showCatalog')}}">Catalog App</a>
+					New Item Page
 				</div>
-				<div class="col-sm-3 login_btn">
+				<div class="col-sm-3 login-btn">
 					{%if 'email' not in session %}
-					<a href="{{url_for('loginPage')}}">Login </a>
+					<a class="login-btn" href="{{url_for('loginPage')}}">Login</a>
 					{% else %}
-					<a href="{{url_for('disconnect')}}">Logout</a>
+					<a class="login-btn" href="{{url_for('disconnect')}}">Logout</a>
 					{% endif %}
 				</div>
 			</div>
@@ -30,24 +31,17 @@
 				</ul>
 			{% endif %}
 		{% endwith %}
-		<main class="container-fluid">
-			<div class="row">
-				<div class="col-sm-3">
-					<p class="group">Categories</p>
-					{% for category in categories %}
-
-					<a href="{{url_for('showCategory',category_name=category.name)}}">{{category.name}}</a> <br>
-					{% endfor %}				
-				</div>
-				<div class="col-sm-9">
-					<p class="group">{{category.name}} Items ({{cnt}} items)</p>
-					{% for item in items %}
-					{% if category.id == item.category_id %}
-					<a href="{{url_for('showItem',category_name=category.name,item=item.name)}}">{{item.name}}</a> <br>
-					{% endif %}
-					{% endfor %}
-				</div>	
-			</div>
+		<main class="new-screen">
+			<form class="pane" id="newitem" action="{{url_for('newItem')}}" method="POST">
+				<strong>Name:</strong>
+				<input type="text" name="name" placeholder="Name"><br>
+				<strong>Description:</strong>
+				<textarea name="description" form="newitem" rows="4" cols="50" placeholder="Desciption.."></textarea>
+				<strong>Category:</strong>
+				<input type="text" name="category" placeholder="name"><br>
+				<input type="submit" value="Create">
+			</form>
+			<a href="{{url_for('showCatalog')}}"> Cancel</a>
 		</main>
 	</body>
 </html>

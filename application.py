@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template,url_for,request,redirect,jsonify,g
+from flask import Flask, render_template,url_for,request,redirect,jsonify,flash
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, User, Catalog, Item
@@ -48,18 +48,20 @@ def new_user():
         name = request.form['name']
         password = request.form['password']
         if email is None or password is None or name is None:
-            print "missing arguments"
-            abort(400) 
+            flash("missing arguments")
+            return redirect(url_for('new_user'))
             
         if session.query(User).filter_by(email = email).first() is not None:
             print "existing user"
             user = session.query(User).filter_by(email=email).first()
-            return jsonify({'message':'user already exists'}), 200#, {'Location': url_for('get_user', id = user.id, _external = True)}
+            flash('The email provided is already associated with an account please login')
+            return redirect(url_for('loginPage'))
             
         user = User(email = email, name=name)
         user.hash_password(password)
         session.add(user)
         session.commit()
+        flash('Successfully created an account')
         return redirect(url_for('loginPage'))#, {'Location': url_for('get_user', id = user.id, _external = True)}
     else:
         return render_template('newuser.html')
@@ -70,12 +72,14 @@ def loginPage():
         email = request.form['email']
         password = request.form['password']
         if email is None or password is None:
-            print "missing arguments"
-            abort(400)
+            flash("missing arguments")
+            return redirect(url_for('loginPage'))
         if(verify_password(email,password)):
+            flash("Logged in successfully as %s" % login_session['name'])
             return redirect(url_for('showCatalog'))
         else:
-            return jsonify({'message': 'Incorrect'}), 200
+            flash('Incorrect password or email')
+            return redirect(url_for('loginPage'))
     else:
         return render_template('login.html')
 
@@ -96,6 +100,7 @@ def disconnect():
         del login_session['id']
         del login_session['name']
         print "You have successfully been logged out."
+        flash("You logged out successfully!")
         return redirect(url_for('showCatalog'))
     else:
         print "You were not logged in to a profile"
@@ -117,29 +122,42 @@ def showCategory(category_name):
 @app.route('/category/newitem', methods=['GET','POST'])
 def newItem():
     if 'email' not in login_session:
+        flash("Please login to access")
         return redirect('/login/')
     if request.method == 'POST':
-        category = session.query(Catalog).filter_by(name=request.form['category']).one()
-        if category:
-            newItem = Item(name=request.form['name'],
-                description=request.form['description'],
-                category_id=category.id,
-                user_id=login_session['id'])
-            session.add(newItem)
-            session.commit()
+        if session.query(Catalog.name).filter_by(name=request.form['category']).scalar() is not None:
+            if request.form['category'] and request.form['name'] and request.form['description']:
+                category = session.query(Catalog).filter_by(name=request.form['category']).one()
+                newItem = Item(name=request.form['name'],
+                    description=request.form['description'],
+                    category_id=category.id,
+                    user_id=login_session['id'])
+                session.add(newItem)
+                session.commit()
+                flash('New Item Created')
+                return redirect(url_for('showCatalog'))
+            else :
+                flash('Not all the fields were filled!')
+                return redirect(url_for('newItem'))
         else:
-            newCategory = Catalog(name=request.form['category'],
-                user_id=login_session['id'])
-            session.add(newCategory)
-            session.commit()
-            category = session.query(Catalog).filter_by(name=request.form['category']).one()
-            newItem = Item(name=request.form['name'],
-                description=request.form['description'],
-                category_id=category.id,
-                user_id=login_session['id'])
-            session.add(newItem)
-            session.commit() 
-        return redirect(url_for('showCatalog'))
+            if request.form['category'] and request.form['name'] and request.form['description']:
+                newCategory = Catalog(name=request.form['category'],
+                    user_id=login_session['id'])
+                session.add(newCategory)
+                session.commit()
+                category = session.query(Catalog).filter_by(name=request.form['category']).one()
+                newItem = Item(name=request.form['name'],
+                    description=request.form['description'],
+                    category_id=category.id,
+                    user_id=login_session['id'])
+                session.add(newItem)
+                session.commit()
+                flash('New Category Created')
+                flash('New Item Created')
+                return redirect(url_for('showCatalog'))
+            else:
+                flash('Not all the fields were filled!')
+                return redirect(url_for('newItem'))
     else:
         return render_template('newitem.html')
 
@@ -153,12 +171,23 @@ def editItem(category_name,item):
         if request.form['description']:
             editItem.description = request.form['description']
         if request.form['category']:
-            category = session.query(Catalog).filter_by(name=request.form['category']).one()
-            editItem.category_id = category.id
+            if session.query(Catalog.name).filter_by(name=request.form['category']).scalar() is not None:
+                category = session.query(Catalog).filter_by(name=request.form['category']).one()
+                editItem.category_id = category.id
+            else:
+                newCategory = Catalog(name = category_name,
+                    user_id=login_session['id'])
+                session.add(newCategory)
+                session.commit()
+                category = session.query(Catalog).filter_by(name=request.form['category']).one()
+                edititem.category_id = category.id
+                flash('New Category Created!')
+
         editItem.user_id = login_session['id']
         session.add(editItem)
         session.commit()
-        return redirect(url_for('showCategory',category_name=category.name))
+        flash('Item Edited!')
+        return redirect(url_for('showItem',category_name=category.name,item=editItem.name))
     else:
         return render_template('edititem.html',category=category,item=editItem)
 
@@ -169,6 +198,7 @@ def deleteItem(category_name,item):
     if request.method == 'POST':
         session.delete(editItem)
         session.commit()
+        flash('Item deleted')
         return redirect(url_for('showCategory',category_name=category.name))
     else:
         return render_template('deleteitem.html',category=category,item=editItem)
@@ -182,9 +212,23 @@ def showItem(category_name,item):
     else:
         return render_template('publicitem.html', category=category,item=item,session=login_session)
 
+# Temporary fix to the css file problem
+@app.context_processor
+def override_url_for():
+    return dict(url_for=dated_url_for)
+
+def dated_url_for(endpoint, **values):
+    if endpoint == 'static':
+        filename = values.get('filename', None)
+        if filename:
+            file_path = os.path.join(app.root_path,
+                                     endpoint, filename)
+            values['q'] = int(os.stat(file_path).st_mtime)
+    return url_for(endpoint, **values)
+
     
 
 if __name__ == '__main__':
     app.debug = True
     app.secret_key = 'super_secret_key'
-    app.run(host = '0.0.0.0', port = 8000)
+    app.run(host = '0.0.0.0', port = 5000)
