@@ -21,8 +21,8 @@ class User(Base):
     password_hash = Column(String(64))
 
     def hash_password(self, password):
-        self.password_hash = pwd_context.encrypt(password)
 
+        self.password_hash = pwd_context.encrypt(password)
     def verify_password(self, password):
         return pwd_context.verify(password, self.password_hash)
     #Add a method to generate auth tokens here
@@ -51,6 +51,13 @@ class Catalog(Base):
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
 
+    @property
+    def serialize(self):
+        return {
+            'id' : self.id,
+            'name' : self.name,
+        }
+
 
 class Item(Base):
     __tablename__='item'
@@ -61,6 +68,15 @@ class Item(Base):
     catalog = relationship(Catalog)
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
+
+    @property
+    def serialize(self):
+        return {
+            'cat_id' : self.category_id,
+            'description' : self.description,
+            'id' : self.id,
+            'title' : self.name
+        }
 
 engine = create_engine('sqlite:///catalog.db')
 

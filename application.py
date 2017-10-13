@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template,url_for,request,redirect,jsonify,flash
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, desc, asc
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, User, Catalog, Item
 from flask_httpauth import HTTPBasicAuth
@@ -41,6 +41,35 @@ def get_auth_token():
     token = g.user.generate_auth_token()
     return jsonify({'token': token.decode('ascii')})
 
+@app.route('/catalog/JSON/')
+def catalogJSON():
+    categories = session.query(Catalog).all()
+    catalog = []
+    for i in categories:
+        items = session.query(Item).filter_by(category_id=i.id).all()
+        item = []
+        for j in items:
+            add = {
+                'cat_id' : i.id,
+                'description' : j.description,
+                'id' : j.id,
+                'title' : j.name
+            }
+            item.append(add)
+        add = {
+            'id' : i.id,
+            'name' : i.name,
+            'item' : item
+        }
+        catalog.append(add)
+    return jsonify( Category = catalog)
+
+@app.route('/catalog/<string:category_name>/JSON/')
+def categoryJSON(category_name):
+    category = session.query(Catalog).filter_by(name = category_name).one()
+    items = session.query(Item).filter_by(category_id=category.id).all()
+    return jsonify( Items = [i.serialize for i in items])
+
 @app.route('/newuser', methods = ['POST','GET'])
 def new_user():
     if request.method == 'POST':
@@ -62,7 +91,7 @@ def new_user():
         session.add(user)
         session.commit()
         flash('Successfully created an account')
-        return redirect(url_for('loginPage'))#, {'Location': url_for('get_user', id = user.id, _external = True)}
+        return redirect(url_for('loginPage'))
     else:
         return render_template('newuser.html')
 
@@ -87,7 +116,7 @@ def loginPage():
 @app.route('/catalog/')
 def showCatalog():
     categories = session.query(Catalog).all()
-    latestitems = session.query(Item).order_by('id')
+    latestitems = session.query(Item).order_by(Item.id.desc()).limit(5).all()
     if 'email' not in login_session:
         return render_template('publiccatalog.html',categories=categories,latestitems=latestitems,session=login_session)
     else:
