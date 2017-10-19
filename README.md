@@ -5,11 +5,12 @@ Source code for a website to create a catalog of items. Users are allowed to cre
 ## Quick Start
 
 Before running `application.py`, make sure you the list of items configured/updated. 
---* python 2.7.x
---* SQLAlchemy v1.1.x
---* Flask v0.12.x
---* passlib v1.7.x
---* itsdangerous v0.24
+
+* python 2.7.x
+* SQLAlchemy v1.1.x
+* Flask v0.12.x
+* passlib v1.7.x
+* itsdangerous v0.24
 
 Once checked packages, run `application.py`.
 
