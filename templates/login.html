@@ -2,6 +2,10 @@
 	<head>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
 		<link rel=stylesheet type=text/css href="{{ url_for('static', filename='mystyles.css') }}">
+		 <!--LOAD PRE-REQUISITES FOR GOOGLE SIGN IN -->
+		  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+		  <script src="//apis.google.com/js/platform.js?onload=start"> </script>
+		  <!-- END PRE-REQUISITES FOR GOOGLE SIGN IN -->
 	</head>
 	{% with messages = get_flashed_messages() %}
 			{% if messages %}
@@ -23,21 +27,68 @@
 					<div class="login-form">
 						
 						Email:<input type="text" class="login-field" value="" placeholder="catalog@example.com" name="email" size="30"><br>
-						
+
 						Password:
 						<input type="password" class="login-field" value="" placeholder="password" name="password"><br>
 						
 		 
 		                <input type="submit" value="Log in" class="login-btn btn btn-primary" >
 
+		                <div id="signInButton">
+					        <span class="g-signin"
+					        data-scope="openid email"
+					        data-clientid="69859656384-bohvh0k9anv80s5j2avvpfb6uap44usi.apps.googleusercontent.com"
+					        data-redirecturi="postmessage"
+					        data-accesstype="offline"
+					        data-cookiepolicy="single_host_origin"
+					        data-callback="signInCallback"
+					        data-approvalprompt="force">
+					        </span>
+					    </div>
 
 		                <div class="register">New? <a href="{{url_for('new_user')}}">Register</a>
 		                </div>
-		                
+
 					    <br>
 					</div>
 				</div>
 			</div>
 		</form>
+		<script>
+  function signInCallback(authResult) {
+    if (authResult['code']) {
+
+        // Hide the sign-in button now that the user is authorized
+        $('#signInButton').attr('style', 'display: none');
+
+
+        // Send the one-time-use code to the server, if the server responds, write a 'login successful' message to the web page and then redirect back to the main restaurants page
+        $.ajax({
+          type: 'POST',
+          url: '/gconnect?state={{STATE}}',
+          processData: false,
+          data: authResult['code'],
+          contentType: 'application/octet-stream; charset=utf-8',
+          success: function(result) {
+            // Handle or verify the server response if necessary.
+            if (result) {
+              $('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...')
+              setTimeout(function() {
+                window.location.href = "/catalog/";
+              }, 500);
+              
+
+            } else if (authResult['error']) {
+
+              console.log('There was an error: ' + authResult['error']);
+            } else {
+              $('#result').html('Failed to make a server-side call. Check your configuration and console.');
+            }
+
+          }
+          
+        }); } }
+      </script>
+
 	</body>
 </html>
