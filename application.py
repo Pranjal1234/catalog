@@ -33,7 +33,7 @@ session = DBSession()
 
 # For google login
 CLIENT_ID = json.loads(
-    open('client_secrets.json','r').read())['web']['client_id']
+    open('client_secrets.json', 'r').read())['web']['client_id']
 
 # ADD @auth.verify_password decorator here
 
@@ -118,6 +118,8 @@ def new_user():
         return render_template('newuser.html')
 
 # Helper functions
+
+
 def getUserID(email):
     try:
         user = session.query(User).filter_by(email=email).one()
@@ -125,17 +127,19 @@ def getUserID(email):
     except:
         return None
 
+
 def getUserInfo(user_id):
     user = session.query(User).filter_by(id=user_id).one()
     return user
 
+
 def createUser(login_session):
-    newUser = User(name=login_session['name'], email=
-                   login_session['email'])
+    newUser = User(name=login_session['name'], email=login_session['email'])
     session.add(newUser)
     session.commit()
     user = session.query(User).filter_by(email=login_session['email']).one()
     return user.id
+
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
@@ -160,7 +164,7 @@ def gconnect():
 
     # Check that the access token is valid.
     access_token = credentials.access_token
-    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s' 
+    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=%s'
            % access_token)
     h = httplib2.Http()
     result = json.loads(h.request(url, 'GET')[1])
@@ -189,8 +193,8 @@ def gconnect():
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
+        response = make_response(json.dumps('Current user is already \
+                                             connected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -218,28 +222,27 @@ def gconnect():
 
     output = ''
     output += '<h1>Welcome, '
-    output += login_session['name']
-    output += '!</h1>'
-    output += '<img src="'
-    output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
     flash("you are now logged in as %s" % login_session['name'])
     print "done!"
     return output
 
 # DISCONNECT - Revoke a current user's token and reset their login_session
+
+
 @app.route('/gdisconnect')
 def gdisconnect():
     access_token = login_session.get('access_token')
     if access_token is None:
         print 'Access Token is None'
-        response = make_response(json.dumps('Current user not connected.'), 401)
+        response = make_response(json.dumps('Current user not connected.'),
+                                 401)
         response.headers['Content-Type'] = 'application/json'
         return response
-    print 'In gdisconnect access token is %s'% access_token
+    print 'In gdisconnect access token is %s' % access_token
     print 'User name is: '
     print login_session['name']
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % \
+    login_session['access_token']
     print url
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
@@ -255,9 +258,11 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
     else:
-        response = make_response(json.dumps('Failed to revoke token for given user.', 400))
+        response = make_response(json.dumps('Failed to revoke token \
+                                             for given user.', 400))
         response.headers['Content-Type'] = 'application/json'
         return response
+
 
 @app.route('/login/', methods=['POST', 'GET'])
 def loginPage():
@@ -274,7 +279,8 @@ def loginPage():
             flash('Incorrect password or email')
             return redirect(url_for('loginPage'))
     else:
-        state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in xrange(32))
+        state = ''.join(random.choice(string.ascii_uppercase +
+                        string.digits) for x in xrange(32))
         login_session['state'] = state
         return render_template('login.html', STATE=state)
 
@@ -335,8 +341,8 @@ def newItem():
     if request.method == 'POST':
         if session.query(Catalog.name).filter_by(
                 name=request.form['category']).scalar() is not None:
-            if request.form['category'] and request.form['name'] and \
-            request.form['description']:
+            if (request.form['category'] and request.form['name'] and
+               request.form['description']):
                 category = session.query(Catalog).filter_by(
                     name=request.form['category']).one()
                 newItem = Item(name=request.form['name'],
@@ -351,8 +357,8 @@ def newItem():
                 flash('Not all the fields were filled!')
                 return redirect(url_for('newItem'))
         else:
-            if request.form['category'] and request.form['name'] and \
-            request.form['description']:
+            if (request.form['category'] and request.form['name'] and
+               request.form['description']):
                 newCategory = Catalog(name=request.form['category'],
                                       user_id=login_session['id'])
                 session.add(newCategory)
