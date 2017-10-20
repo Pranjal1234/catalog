@@ -384,9 +384,15 @@ def newItem():
 @app.route('/category/<string:category_name>/<string:item>/edit/',
            methods=['GET', 'POST'])
 def editItem(category_name, item):
+    if 'email' not in login_session:
+        flash("Please login to access")
+        return redirect('/login/')
     category = session.query(Catalog).filter_by(name=category_name).one()
     editItem = session.query(Item).filter_by(
         name=item, category_id=category.id).one()
+    if editItem.user_id != login_session['id']:
+        flash("You are not the orginal creator of this item")
+        return redirect(url_for('showCatalog'))
     if request.method == 'POST':
         if request.form['name']:
             editItem.name = request.form['name']
@@ -422,9 +428,15 @@ def editItem(category_name, item):
 @app.route('/category/<string:category_name>/<string:item>/delete/',
            methods=['GET', 'POST'])
 def deleteItem(category_name, item):
+    if 'email' not in login_session:
+        flash("Please login to access")
+        return redirect('/login/')
     category = session.query(Catalog).filter_by(name=category_name).one()
     editItem = session.query(Item).filter_by(
         name=item, category_id=category.id).one()
+    if editItem.user_id != login_session['id']:
+        flash("You are not the orginal creator of this item")
+        return redirect(url_for('showCatalog'))
     if request.method == 'POST':
         session.delete(editItem)
         session.commit()
