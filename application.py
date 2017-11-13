@@ -288,6 +288,7 @@ def loginPage():
 @app.route('/')
 @app.route('/catalog/')
 def showCatalog():
+    app.secret_key = 'super_secret_key'
     categories = session.query(Catalog).all()
     latestitems = session.query(Item).order_by(Item.id.desc()).limit(5).all()
     if 'email' not in login_session:
@@ -478,6 +479,4 @@ def dated_url_for(endpoint, **values):
 
 if __name__ == '__main__':
     app.debug = True
-    app.secret_key = 'super_secret_key'
-    app.config['SESSION_TYPE'] = 'filesystem'
-    app.run(host='0.0.0.0', port=8000)
+    app.run(host='0.0.0.0', port=80)
