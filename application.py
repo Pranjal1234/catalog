@@ -33,7 +33,7 @@ session = DBSession()
 
 # For google login
 CLIENT_ID = json.loads(
-    open('client_secrets.json', 'r').read())['web']['client_id']
+    open('/var/www/FLASKAPPS/catalog/client_secrets.json', 'r').read())['web']['client_id']
 
 # ADD @auth.verify_password decorator here
 
@@ -241,8 +241,8 @@ def gdisconnect():
     print 'In gdisconnect access token is %s' % access_token
     print 'User name is: '
     print login_session['name']
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % \
-    login_session['access_token']
+    url = ('https://accounts.google.com/o/oauth2/revoke?token=%s' %
+           login_session['access_token'])
     print url
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
