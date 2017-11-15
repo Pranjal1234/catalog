@@ -24,7 +24,7 @@ auth = HTTPBasicAuth()
 app = Flask(__name__)
 
 # Connection to the catalog database
-engine = create_engine('sqlite:///catalog.db')
+engine = create_engine('sqlite:///catalog.db', connect_args={'check_same_thread': False})
 Base.metadata.bind = engine
 
 # Session object for SQLalchemy
@@ -288,7 +288,6 @@ def loginPage():
 @app.route('/')
 @app.route('/catalog/')
 def showCatalog():
-    app.secret_key = 'super_secret_key'
     categories = session.query(Catalog).all()
     latestitems = session.query(Item).order_by(Item.id.desc()).limit(5).all()
     if 'email' not in login_session:
