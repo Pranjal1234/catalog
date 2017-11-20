@@ -45,6 +45,11 @@ a {
 
 a.app-name {
 	font-size: 3em;
+	float: left;
+}
+
+.login-btn {
+	float: right;
 }
 
 .group {
